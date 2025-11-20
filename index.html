@@ -269,8 +269,6 @@
                     } catch (e) {
                         alert('Nieprawidłowy link. Skontaktuj się z biurem rachunkowym.');
                     }
-                } else {
-                    // Brak danych - nie ustawiamy clientData
                 }
             }, []);
 
@@ -298,7 +296,7 @@
 
                 // Wyślij do Google Apps Script
                 try {
-                    await fetch('https://script.google.com/macros/s/AKfycbw2wDaUdc9bWOk0qswJqPEfZOWoGl1TmWw3G_DcpJtp0uPlqmHwoAAeg5rIAXl3gtLcrA/exec', {
+                    await fetch('https://script.google.com/macros/s/AKfycbz8t6Evt9MaSgoYbVe4rc4Uta7kWRWk_fX7vGd8m9-b3ZS7YIK1GMmIF0E14JMznmo0ZQ/exec', {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: {
@@ -313,7 +311,7 @@
                     });
                     console.log('Email wysłany!');
                 } catch (error) {
-                    console.log('Błąd wysyłania:', error);
+                    console.log('Błąd wysyłania emaila:', error);
                 }
 
                 localStorage.setItem(`aneks_${clientData.nip}_${Date.now()}`, JSON.stringify({
