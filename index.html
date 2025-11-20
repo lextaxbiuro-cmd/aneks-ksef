@@ -259,26 +259,18 @@
             const [timestamp, setTimestamp] = useState('');
 
             useEffect(() => {
-                // Odczytaj dane z URL
                 const params = new URLSearchParams(window.location.search);
                 const encodedData = params.get('d');
                 
                 if (encodedData) {
                     try {
-                        // Dekodowanie z obsługą polskich znaków
-                        const decodedString = decodeURIComponent(
-                            atob(encodedData).split('').map(function(c) {
-                                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                            }).join('')
-                        );
-                        const decodedData = JSON.parse(decodedString);
+                        const decodedData = JSON.parse(atob(encodedData));
                         setClientData(decodedData);
                     } catch (e) {
                         alert('Nieprawidłowy link. Skontaktuj się z biurem rachunkowym.');
-                        console.error('Błąd dekodowania:', e);
                     }
                 } else {
-                    alert('Brak danych klienta. Skontaktuj się z biurem rachunkowym.');
+                    // Brak danych - nie ustawiamy clientData
                 }
             }, []);
 
@@ -304,35 +296,30 @@
                 setTimestamp(timestampStr);
                 setIsSubmitted(true);
 
-                // Wysłanie emaila przez Brevo API
+                // Wyślij do Google Apps Script
                 try {
-                    const emailData = {
-                        to: 'biuro@lextax.cloud',
-                        subject: `✅ Akceptacja Aneksu KSeF - ${clientData.nazwa}`,
-                        html: `
-                            <h2>Klient zaakceptował Aneks do Umowy - KSeF</h2>
-                            <hr>
-                            <p><strong>Firma:</strong> ${clientData.nazwa}</p>
-                            <p><strong>NIP:</strong> ${clientData.nip}</p>
-                            <p><strong>Email:</strong> ${clientData.email}</p>
-                            <p><strong>Data i godzina akceptacji:</strong> ${timestampStr}</p>
-                            <hr>
-                            <p style="color: #666; font-size: 12px;">Wiadomość wygenerowana automatycznie przez system Lex Tax</p>
-                        `
-                    };
-
-                    // Tutaj będzie integracja z Brevo API
-                    console.log('Wysyłam email:', emailData);
-                    
-                    // Możesz również zapisać to do Google Sheets lub lokalnego storage
-                    localStorage.setItem(`aneks_${clientData.nip}_${Date.now()}`, JSON.stringify({
-                        ...clientData,
-                        timestamp: timestampStr
-                    }));
-
+                    await fetch('https://script.google.com/macros/s/AKfycbw2wDaUdc9bWOk0qswJqPEfZOWoGl1TmWw3G_DcpJtp0uPlqmHwoAAeg5rIAXl3gtLcrA/exec', {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            clientName: clientData.nazwa,
+                            nip: clientData.nip,
+                            email: clientData.email,
+                            timestamp: timestampStr
+                        })
+                    });
+                    console.log('Email wysłany!');
                 } catch (error) {
-                    console.error('Błąd wysyłania powiadomienia:', error);
+                    console.log('Błąd wysyłania:', error);
                 }
+
+                localStorage.setItem(`aneks_${clientData.nip}_${Date.now()}`, JSON.stringify({
+                    ...clientData,
+                    timestamp: timestampStr
+                }));
             };
 
             if (!clientData) {
@@ -348,15 +335,8 @@
                                 Ten link nie zawiera danych klienta lub dane są nieprawidłowe.
                             </p>
                             <p style={{color: '#6c757d', lineHeight: '1.6', marginBottom: '20px'}}>
-                                Aby przetestować system, użyj pliku <strong>demo-test.html</strong> lub 
-                                wygeneruj poprawny link w <strong>generator-linkow.html</strong>
+                                Skontaktuj się z biurem rachunkowym, aby otrzymać prawidłowy link.
                             </p>
-                            <div style={{background: '#f8f9fa', padding: '20px', borderRadius: '8px', marginTop: '30px'}}>
-                                <p style={{color: '#6c757d', fontSize: '14px'}}>
-                                    <strong>Dla administratora:</strong><br/>
-                                    Link musi zawierać parametr ?d= z zakodowanymi danymi klienta
-                                </p>
-                            </div>
                         </div>
                     </div>
                 );
@@ -535,3 +515,6 @@
     </script>
 </body>
 </html>
+  
+         
+         
