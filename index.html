@@ -294,9 +294,8 @@
                 setTimestamp(timestampStr);
                 setIsSubmitted(true);
 
-                // Wyślij do Google Apps Script
                 try {
-                    await fetch('https://script.google.com/macros/s/AKfycbz8t6Evt9MaSgoYbVe4rc4Uta7kWRWk_fX7vGd8m9-b3ZS7YIK1GMmIF0E14JMznmo0ZQ/exec', {
+                    await fetch('https://script.google.com/macros/s/AKfycbxLoi_xA_2F0_V4XWWxuEdEZ6cyK53MIUonbZPm2ruuYaplC4KuA74q1lbTAl7TvNgT/exec', {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: {
@@ -309,9 +308,9 @@
                             timestamp: timestampStr
                         })
                     });
-                    console.log('Email wysłany!');
+                    console.log('Dane wyslane do webhooka!');
                 } catch (error) {
-                    console.log('Błąd wysyłania emaila:', error);
+                    console.log('Blad wysylania:', error);
                 }
 
                 localStorage.setItem(`aneks_${clientData.nip}_${Date.now()}`, JSON.stringify({
@@ -513,6 +512,3 @@
     </script>
 </body>
 </html>
-  
-         
-         
